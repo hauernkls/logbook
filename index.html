@@ -87,6 +87,10 @@ input::placeholder { color: var(--muted); opacity: .6; }
 .sets { display: grid; grid-template-columns: 1.6rem 1fr 1fr 1fr 2.2rem; gap: 6px; align-items: center; }
 .sets .label { text-align: center; }
 .set-no { font-family: var(--mono); color: var(--muted); text-align: center; }
+.tpl-sets { grid-template-columns: 1.6rem 1fr 1fr 2.2rem; }
+.suggest { display: flex; flex-wrap: wrap; gap: 6px; }
+.suggest:empty { display: none; }
+.chip { min-height: 36px; padding: 6px 12px; border-radius: 999px; font-weight: 500; }
 .add-ex { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 
 .history { display: flex; flex-direction: column; gap: 8px; }
@@ -129,6 +133,10 @@ pre { margin: 0; font: .85rem/1.5 var(--mono); background: var(--bg); border-rad
     <div id="session" class="card"></div>
   </section>
 
+  <section aria-labelledby="tpl-h">
+    <div class="row spread"><h2 id="tpl-h">Templates</h2><button id="tpl-new" type="button">+ New</button></div>
+    <div id="templates" class="history"></div>
+  </section>
   <section aria-labelledby="hist-h">
     <div class="row spread"><h2 id="hist-h">History</h2><span id="hist-count" class="label"></span></div>
     <div id="history" class="history"></div>
@@ -138,7 +146,7 @@ pre { margin: 0; font: .85rem/1.5 var(--mono); background: var(--bg); border-rad
     <h2 id="file-h">Your .md file</h2>
     <div class="card">
       <div class="row spread"><span class="file-name">training-log.md</span><span id="sync" class="sync"></span></div>
-      <p class="note">Your log is stored in this app on your phone. <b>Export</b> saves it as a markdown file, for example to Files or iCloud Drive. <b>Open</b> loads a .md file back in, to restore a backup or move to a new phone.</p>
+      <p class="note">Your log and templates are stored in this app on your phone. <b>Export</b> saves it as a markdown file, for example to Files or iCloud Drive. <b>Open</b> loads a .md file back in, to restore a backup or move to a new phone.</p>
       <div id="import-choice" class="choice" hidden></div>
       <div class="row">
         <button id="export" type="button" class="primary">Export .md</button>
@@ -149,7 +157,6 @@ pre { margin: 0; font: .85rem/1.5 var(--mono); background: var(--bg); border-rad
     </div>
   </section>
 </main>
-<datalist id="ex-names"></datalist>
 <div id="toast" class="toast" role="status" hidden></div>
 <script src="md.js"></script>
 <script src="app.js"></script>
