@@ -474,4 +474,14 @@ $("unit-lb").onclick = () => setUnit("lb");
 setUnit(state.unit); renderTheme();
 renderSession(); renderTemplates(); renderHistory(); renderSync();
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  // A new upload brings a new worker; reload once so it shows right away.
+  // The draft is written first so a reload mid-workout loses nothing.
+  const hadWorker = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadWorker) return;
+    if (state.active) ls.set(KEYS.draft, JSON.stringify(state.active));
+    location.reload();
+  });
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});
+}
