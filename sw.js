@@ -1,7 +1,7 @@
 // Caches the app so it opens with no connection. Serves the cached copy
 // immediately and refreshes it in the background, so a new version shows
 // up on the next launch after you upload it.
-const CACHE = "logbook-v1";
+const CACHE = "logbook-v2";
 const ASSETS = ["./", "index.html", "md.js", "app.js", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
 
 self.addEventListener("install", e => {

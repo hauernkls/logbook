@@ -2,7 +2,7 @@
 // document (see md.js); the workout in progress is a JSON draft so nothing is
 // lost if iOS closes the app mid-session.
 
-const KEYS = { log: "log-md", draft: "draft", unit: "unit", exported: "exported-md", exportedAt: "exported-at" };
+const KEYS = { log: "log-md", draft: "draft", unit: "unit", exported: "exported-md", exportedAt: "exported-at", theme: "theme" };
 const RPES = ["", "6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10"];
 const COMMON = ["Back Squat", "Bench Press", "Deadlift", "Overhead Press", "Barbell Row", "Pull-up", "Romanian Deadlift", "Dip", "Lunge", "Lat Pulldown"];
 const FILE_NAME = "training-log.md";
@@ -45,7 +45,7 @@ function lastFor(name, skipMd) {
   const ex = prev.exercises.find(ex => ex.name.trim().toLowerCase() === key && ex.sets.some(hasNumbers));
   return { date: prev.date, unit: prev.unit, sets: ex.sets.filter(hasNumbers) };
 }
-const fmtSet = (s, unit) => `${s.reps || "?"}${s.weight !== "" ? "×" + s.weight + unit : ""}${s.rpe ? " @" + s.rpe : ""}`;
+const fmtSet = (s, unit) => `${s.weight !== "" ? s.weight + unit + "×" : ""}${s.reps || "?"}${s.rpe ? " @" + s.rpe : ""}`;
 
 /* ---------- current session ---------- */
 function startWorkout() {
@@ -89,11 +89,11 @@ function renderSession() {
           ? `Last time · ${esc(last.date)}<br><b>${last.sets.map(s => esc(fmtSet(s, last.unit))).join(" · ")}</b>`
           : "First time logging this exercise"}</div>
         <div class="sets">
-          <span></span><span class="label">Reps</span><span class="label">${esc(w.unit)}</span><span class="label">RPE</span><span></span>
+          <span></span><span class="label">${esc(w.unit)}</span><span class="label">Reps</span><span class="label">RPE</span><span></span>
           ${ex.sets.map((s, j) => `
             <span class="set-no">${j + 1}</span>
-            <input class="num" inputmode="numeric" value="${esc(s.reps)}" placeholder="${esc(ph(j).reps)}" data-f="reps" data-i="${i}" data-j="${j}" aria-label="Set ${j + 1} reps" id="r-${i}-${j}">
             <input class="num" inputmode="decimal" value="${esc(s.weight)}" placeholder="${esc(ph(j).weight)}" data-f="weight" data-i="${i}" data-j="${j}" aria-label="Set ${j + 1} weight" id="k-${i}-${j}">
+            <input class="num" inputmode="numeric" value="${esc(s.reps)}" placeholder="${esc(ph(j).reps)}" data-f="reps" data-i="${i}" data-j="${j}" aria-label="Set ${j + 1} reps" id="r-${i}-${j}">
             <select class="num" data-f="rpe" data-i="${i}" data-j="${j}" aria-label="Set ${j + 1} RPE" id="p-${i}-${j}">${rpeOpts(s.rpe)}</select>
             <button type="button" class="ghost" data-act="del-set" data-i="${i}" data-j="${j}" aria-label="Delete set ${j + 1}">×</button>`).join("")}
         </div>
@@ -118,7 +118,7 @@ function renderSession() {
     if (!name) return;
     w.exercises.push({ name, sets: [{ reps: "", weight: "", rpe: "" }] });
     saveDraft(); renderSession();
-    $(`r-${w.exercises.length - 1}-0`).focus();
+    $(`k-${w.exercises.length - 1}-0`).focus();
   };
   $("ex-add").onclick = addEx;
   $("ex-input").onkeydown = e => { if (e.key === "Enter") addEx(); };
@@ -292,11 +292,25 @@ function setUnit(u) {
   $("unit-lb").setAttribute("aria-pressed", u === "lb");
   if (state.active && state.active.unit !== u) { state.active.unit = u; saveDraft(); renderSession(); }
 }
+// Theme: follows the phone until the toggle is tapped, then sticks to the choice.
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+const isDark = () => (document.documentElement.dataset.theme || (darkQuery.matches ? "dark" : "light")) === "dark";
+function renderTheme() {
+  const dark = isDark();
+  $("theme").textContent = dark ? "☀" : "☾";
+  $("theme").setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = dark ? "#101317" : "#f3f5f7"; });
+}
+$("theme").onclick = () => {
+  const t = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = t; ls.set(KEYS.theme, t); renderTheme();
+};
+darkQuery.addEventListener("change", renderTheme);
 $("unit-kg").onclick = () => setUnit("kg");
 $("unit-lb").onclick = () => setUnit("lb");
 
 /* ---------- boot ---------- */
-setUnit(state.unit);
+setUnit(state.unit); renderTheme();
 refreshNames(); renderSession(); renderHistory(); renderSync();
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});

@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Logbook">
+<script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
@@ -22,12 +23,18 @@
   --mono: ui-monospace, "SF Mono", Menlo, monospace;
   color-scheme: light;
 }
+/* Dark follows the phone unless the header toggle picked a theme (data-theme on <html>). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #101317; --surface: #191d22; --ink: #e9ecef; --muted: #98a2ad; --line: #2b3138;
     --accent: #5b93ec; --accent-ink: #0b1220; --danger: #ef7b72; --ok: #6cc592; --warn: #e5a54b;
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #101317; --surface: #191d22; --ink: #e9ecef; --muted: #98a2ad; --line: #2b3138;
+  --accent: #5b93ec; --accent-ink: #0b1220; --danger: #ef7b72; --ok: #6cc592; --warn: #e5a54b;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -67,6 +74,7 @@ input::placeholder { color: var(--muted); opacity: .6; }
 
 .unit { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .unit button { border: 0; border-radius: 0; min-height: 36px; padding: 6px 12px; font-family: var(--mono); }
+.theme { min-height: 36px; padding: 6px 10px; font-size: 1rem; line-height: 1; }
 .unit button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
@@ -104,12 +112,15 @@ pre { margin: 0; font: .85rem/1.5 var(--mono); background: var(--bg); border-rad
 <main>
   <header>
     <div>
-      <div class="label">Sets · Reps · RPE</div>
+      <div class="label">Sets · Weight · Reps · RPE</div>
       <h1>Set Logbook</h1>
     </div>
-    <div class="unit" role="group" aria-label="Weight unit">
-      <button id="unit-kg" type="button" aria-pressed="true">kg</button>
-      <button id="unit-lb" type="button" aria-pressed="false">lb</button>
+    <div class="row">
+      <button id="theme" type="button" class="theme" aria-label="Switch to dark mode">☾</button>
+      <div class="unit" role="group" aria-label="Weight unit">
+        <button id="unit-kg" type="button" aria-pressed="true">kg</button>
+        <button id="unit-lb" type="button" aria-pressed="false">lb</button>
+      </div>
     </div>
   </header>
 
